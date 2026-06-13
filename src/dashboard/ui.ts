@@ -72,7 +72,6 @@ export const DASHBOARD_CSS = `
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --shadow-card: rgba(0, 0, 0, 0.4) 0px 2px 4px 0px;
-  --shadow-overlay: rgba(8, 9, 10, 0.6) 0px 4px 32px 0px;
   --inset-graphite: inset 0px 0px 0px 1px var(--color-graphite);
 }
 
@@ -191,8 +190,8 @@ body {
 
 .btn-primary {
   appearance: none;
-  background: var(--color-acid-lime);
-  color: #08090a;
+  background: var(--color-indigo);
+  color: var(--color-snow);
   border: none;
   font-family: var(--font-inter);
   font-size: 14px;
@@ -203,7 +202,7 @@ body {
   transition: filter 0.15s ease, opacity 0.15s ease;
 }
 
-.btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.12); }
 .btn-primary:disabled { opacity: 0.55; cursor: wait; }
 
 /* ---------- Shell ---------- */
@@ -216,15 +215,11 @@ body {
   gap: 32px;
 }
 
-.view {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+.view { display: flex; flex-direction: column; }
 
 .hidden { display: none !important; }
 
-/* ---------- Cards ---------- */
+/* ---------- Latest run card ---------- */
 .card {
   background: var(--color-charcoal);
   border-radius: 12px;
@@ -236,7 +231,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--color-graphite);
 }
@@ -249,12 +244,63 @@ body {
   margin: 0;
 }
 
-/* ---------- Run meta / status ---------- */
-.run-meta {
+/* ---------- Changelog timeline ---------- */
+.timeline {
+  position: relative;
+  margin-left: 4px;
+  padding-left: 32px;
+  border-left: 1px solid var(--color-graphite);
+}
+
+.day { position: relative; padding-bottom: 56px; }
+.day:last-child { padding-bottom: 0; }
+
+.day-date {
+  position: relative;
+  font-size: 15px;
+  font-weight: 590;
+  letter-spacing: -0.01em;
+  color: var(--color-snow);
+  margin: 0 0 20px 0;
+}
+
+.day-date::before {
+  content: "";
+  position: absolute;
+  left: -32px;
+  top: 0.5em;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 9999px;
+  background: var(--color-slate);
+  box-shadow: 0 0 0 4px var(--color-onyx);
+}
+
+.day.latest .day-date::before {
+  background: var(--color-indigo);
+  box-shadow: 0 0 0 4px var(--color-onyx), 0 0 8px rgba(94, 106, 210, 0.6);
+}
+
+.run-block { margin-bottom: 28px; }
+.run-block:last-child { margin-bottom: 0; }
+
+.run-label {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.run-tag {
+  font-size: 11px;
+  font-weight: 590;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-mist);
+  padding: 2px 8px;
+  border-radius: 2px;
+  box-shadow: var(--inset-graphite);
 }
 
 .run-time {
@@ -270,12 +316,8 @@ body {
   gap: 6px;
   font-size: 11px;
   font-weight: 510;
-  letter-spacing: 0.01em;
   text-transform: capitalize;
-  padding: 2px 8px;
-  border-radius: 2px;
   color: var(--color-mist);
-  background: transparent;
 }
 
 .status::before {
@@ -289,68 +331,171 @@ body {
 .status.failed { color: var(--color-crimson); }
 .status.failed::before { background: var(--color-crimson); }
 
-/* ---------- Drafts ---------- */
-.draft-item {
-  padding: 20px 0;
-  border-top: 1px solid var(--color-graphite);
+/* ---------- Card grid ---------- */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
 }
 
-.draft-item:first-of-type { border-top: none; padding-top: 16px; }
-.draft-item:last-child { padding-bottom: 0; }
+.empty-run {
+  font-size: 13px;
+  color: var(--color-slate);
+  padding: 4px 0;
+}
 
-.draft-title {
-  font-size: 15px;
-  font-weight: 590;
-  letter-spacing: -0.01em;
-  color: var(--color-snow);
+/* ---------- Post / article card ---------- */
+.post-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  background: var(--color-obsidian);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--inset-graphite);
+  transition: box-shadow 0.15s ease;
+}
+
+.post-card:hover {
+  box-shadow: inset 0 0 0 1px var(--color-iron);
+}
+
+.post-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-slate);
   margin: 0 0 8px 0;
 }
 
-.draft-content {
-  font-size: 14px;
+.post-title {
+  font-size: 15px;
+  font-weight: 590;
+  line-height: 1.33;
+  letter-spacing: -0.01em;
+  color: var(--color-snow);
+  margin: 0 0 10px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  font-size: 13px;
   line-height: 1.6;
   color: var(--color-mist);
   white-space: pre-wrap;
+  word-break: break-word;
+  padding-right: 6px;
   margin: 0;
 }
 
-.recommendation, .visual {
+.post-body strong { color: var(--color-snow); font-weight: 590; }
+
+.post-aside {
   margin-top: 12px;
-  font-size: 13px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-graphite);
+  font-size: 12px;
   line-height: 1.5;
   color: var(--color-fog);
-  background: var(--color-obsidian);
-  padding: 10px 12px;
-  border-radius: 6px;
-  box-shadow: var(--inset-graphite);
 }
 
-.recommendation strong, .visual strong {
+.post-aside strong { color: var(--color-mist); font-weight: 590; }
+
+/* Scrollbar (dark) */
+.post-body::-webkit-scrollbar { width: 8px; }
+.post-body::-webkit-scrollbar-track { background: transparent; }
+.post-body::-webkit-scrollbar-thumb {
+  background: var(--color-iron);
+  border-radius: 9999px;
+  border: 2px solid var(--color-obsidian);
+}
+.post-body::-webkit-scrollbar-thumb:hover { background: var(--color-steel); }
+.post-body { scrollbar-width: thin; scrollbar-color: var(--color-iron) transparent; }
+
+/* Copy on hover */
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  appearance: none;
+  border: none;
+  background: var(--color-graphite);
   color: var(--color-mist);
-  font-weight: 590;
+  font-family: var(--font-inter);
+  font-size: 11px;
+  font-weight: 510;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
-.history-note {
-  font-size: 13px;
-  color: var(--color-slate);
-  margin: 4px 0 0 0;
-}
+.post-card:hover .copy-btn { opacity: 1; transform: translateY(0); }
+.copy-btn:hover { background: var(--color-steel); color: var(--color-snow); }
+.copy-btn:focus-visible { opacity: 1; outline: 1px solid var(--color-indigo); }
+.copy-btn.copied { background: var(--color-emerald); color: #08090a; }
 
 /* ---------- Memories ---------- */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.memory-card {
+  display: flex;
+  flex-direction: column;
+  max-height: 360px;
+  background: var(--color-charcoal);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-card), var(--inset-graphite);
+}
+
+.memory-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-slate);
+  margin: 0 0 10px 0;
+}
+
 .memory-text {
+  flex: 1 1 auto;
+  overflow-y: auto;
   font-size: 14px;
   line-height: 1.6;
   color: var(--color-mist);
   white-space: pre-wrap;
-  margin: 0 0 12px 0;
+  word-break: break-word;
+  margin: 0;
+  padding-right: 6px;
 }
+
+.memory-text::-webkit-scrollbar { width: 8px; }
+.memory-text::-webkit-scrollbar-thumb {
+  background: var(--color-iron);
+  border-radius: 9999px;
+  border: 2px solid var(--color-charcoal);
+}
+.memory-text { scrollbar-width: thin; scrollbar-color: var(--color-iron) transparent; }
 
 .memory-date {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: -0.015em;
   color: var(--color-slate);
-  margin: 0;
+  margin: 12px 0 0 0;
 }
 
 /* ---------- Run log (streaming) ---------- */
@@ -374,7 +519,7 @@ body {
 .log-warning {
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--color-acid-lime);
+  color: var(--color-indigo);
   margin-top: 12px;
 }
 
@@ -401,10 +546,17 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 720px) {
+@media (max-width: 900px) {
+  .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
   .nav-inner { gap: 12px; padding: 0 16px; }
   .brand-name { display: none; }
   .shell { padding: 24px 16px 80px; }
+  .timeline { padding-left: 24px; }
+  .day-date::before { left: -24px; }
+  .cards-grid { grid-template-columns: 1fr; }
 }
 `;
 
@@ -468,93 +620,180 @@ async function requestJson(path, options) {
   return payload;
 }
 
-function formatDate(value) {
-  if (!value) return 'Unknown time';
+function formatDay(value) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
-    ? String(value)
-    : new Intl.DateTimeFormat(undefined, {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      }).format(date);
+    ? 'Unknown date'
+    : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(date);
 }
 
-function appendDraft(root, draft, historical) {
-  const item = element('div', 'draft-item');
+function formatTime(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? ''
+    : new Intl.DateTimeFormat(undefined, { timeStyle: 'short' }).format(date);
+}
 
+function dayKey(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'unknown';
+  return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+}
+
+// Render text with minimal **bold** markdown into a parent, safely (no innerHTML).
+function appendRich(parent, text) {
+  const parts = String(text || '').split(/(\\*\\*[^*]+\\*\\*)/g);
+  for (const part of parts) {
+    if (!part) continue;
+    if (/^\\*\\*[^*]+\\*\\*$/.test(part)) {
+      parent.append(element('strong', '', part.slice(2, -2)));
+    } else {
+      parent.append(document.createTextNode(part));
+    }
+  }
+}
+
+function copyTextFor(draft) {
   if (draft.kind === 'article' && draft.title) {
-    item.append(element('h3', 'draft-title', draft.title));
+    return draft.title + '\\n\\n' + (draft.content || '');
+  }
+  return draft.content || '';
+}
+
+function buildPostCard(draft, index) {
+  const card = element('article', 'post-card');
+
+  const copyBtn = element('button', 'copy-btn', 'Copy');
+  copyBtn.type = 'button';
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(copyTextFor(draft));
+      copyBtn.textContent = 'Copied';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('copied');
+      }, 1200);
+    } catch {
+      copyBtn.textContent = 'Failed';
+      setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1200);
+    }
+  });
+  card.append(copyBtn);
+
+  const isArticle = draft.kind === 'article';
+  card.append(element('p', 'post-kicker', isArticle ? 'Article' : 'Post ' + (index + 1)));
+
+  if (isArticle && draft.title) {
+    card.append(element('h3', 'post-title', draft.title));
   }
 
-  const content = element(
-    'p',
-    'draft-content',
-    draft.content || '',
-  );
-  item.append(content);
+  const body = element('div', 'post-body');
+  appendRich(body, draft.content || '');
+  card.append(body);
 
-  if (draft.recommendation) {
-    const recommendation = element('p', 'recommendation');
-    recommendation.append(element('strong', '', 'Why this direction: '));
-    recommendation.append(document.createTextNode(draft.recommendation));
-    item.append(recommendation);
+  if (draft.recommendation || draft.visualSuggestion) {
+    const aside = element('div', 'post-aside');
+    if (draft.recommendation) {
+      const row = element('div');
+      row.append(element('strong', '', 'Why: '));
+      row.append(document.createTextNode(draft.recommendation));
+      aside.append(row);
+    }
+    if (draft.visualSuggestion) {
+      const row = element('div');
+      row.append(element('strong', '', 'Visual: '));
+      row.append(document.createTextNode(draft.visualSuggestion));
+      aside.append(row);
+    }
+    body.append(aside);
   }
 
-  if (draft.visualSuggestion) {
-    const visual = element('p', 'visual');
-    visual.append(element('strong', '', 'Visual: '));
-    visual.append(document.createTextNode(draft.visualSuggestion));
-    item.append(visual);
-  }
+  return card;
+}
 
-  root.append(item);
+function buildCardsGrid(drafts) {
+  const grid = element('div', 'cards-grid');
+  drafts.forEach((draft, index) => grid.append(buildPostCard(draft, index)));
+  return grid;
 }
 
 function renderRuns(runs) {
   runsRoot.replaceChildren();
   if (!runs.length) {
-    setState(runsRoot, 'empty', 'No saved runs yet.');
+    setState(runsRoot, 'empty', 'No saved runs yet. Hit "Generate run" to create one.');
     return;
   }
 
+  // Group runs (already newest-first) into calendar days.
+  const days = [];
+  const byKey = new Map();
   for (const run of runs) {
-    const card = element('article', 'card');
-    const head = element('div', 'card-head');
-    const meta = element('div', 'run-meta');
-    const status = element('span', 'status' + (run.status === 'failed' ? ' failed' : ''), run.status);
-    meta.append(element('time', 'run-time', formatDate(run.runDate)), status);
-    head.append(meta);
-    card.append(head);
-
-    if (run.drafts && run.drafts.length) {
-      for (const draft of run.drafts) appendDraft(card, draft, true);
-    } else {
-      card.append(element('p', 'history-note', 'No drafts generated.'));
+    const key = dayKey(run.runDate);
+    let day = byKey.get(key);
+    if (!day) {
+      day = { key, runDate: run.runDate, runs: [] };
+      byKey.set(key, day);
+      days.push(day);
     }
-    runsRoot.append(card);
+    day.runs.push(run);
   }
+
+  const timeline = element('div', 'timeline');
+
+  days.forEach((day, dayIndex) => {
+    const section = element('section', 'day' + (dayIndex === 0 ? ' latest' : ''));
+    section.append(element('h2', 'day-date', formatDay(day.runDate)));
+
+    // Oldest run of the day becomes "Run 1".
+    const dayRuns = day.runs.slice().reverse();
+    const multiple = dayRuns.length > 1;
+
+    dayRuns.forEach((run, runIndex) => {
+      const block = element('div', 'run-block');
+      const label = element('div', 'run-label');
+      if (multiple) label.append(element('span', 'run-tag', 'Run ' + (runIndex + 1)));
+      const time = formatTime(run.runDate);
+      if (time) label.append(element('span', 'run-time', time));
+      label.append(element('span', 'status' + (run.status === 'failed' ? ' failed' : ''), run.status));
+      block.append(label);
+
+      if (run.drafts && run.drafts.length) {
+        block.append(buildCardsGrid(run.drafts));
+      } else {
+        block.append(element('p', 'empty-run', 'No drafts generated.'));
+      }
+      section.append(block);
+    });
+
+    timeline.append(section);
+  });
+
+  runsRoot.append(timeline);
 }
 
 function renderMemories(memories) {
   memoriesRoot.replaceChildren();
 
-  // Filter out the style profile memories
-  const visibleMemories = memories.filter(m => {
-    const meta = m.metadata || {};
-    return !(meta.kind === 'writing_style_profile' || meta.profileKey);
-  });
-
-  if (!visibleMemories.length) {
-    setState(memoriesRoot, 'empty', 'No visible memories found.');
+  if (!memories.length) {
+    setState(memoriesRoot, 'empty', 'No memories stored yet.');
     return;
   }
 
-  for (const memory of visibleMemories) {
-    const card = element('article', 'card');
+  const grid = element('div', 'memory-grid');
+  for (const memory of memories) {
+    const meta = memory.metadata || {};
+    const isStyle = meta.kind === 'writing_style_profile' || meta.profileKey;
+    const isFeedback = meta.kind === 'writing_style_feedback';
+    const kicker = isStyle ? 'Writing style' : isFeedback ? 'Feedback' : 'Memory';
+
+    const card = element('article', 'memory-card');
+    card.append(element('p', 'memory-kicker', kicker));
     card.append(element('p', 'memory-text', memory.memory || '(Empty memory)'));
-    if (memory.createdAt) card.append(element('p', 'memory-date', formatDate(memory.createdAt)));
-    memoriesRoot.append(card);
+    if (memory.createdAt) card.append(element('p', 'memory-date', formatDay(memory.createdAt)));
+    grid.append(card);
   }
+  memoriesRoot.append(grid);
 }
 
 async function loadRuns() {
@@ -612,15 +851,14 @@ async function triggerRun() {
         const data = JSON.parse(line.substring(6));
 
         if (data.type === 'log') {
-          const logEl = element('div', 'log-line', '› ' + data.message);
-          resultRoot.appendChild(logEl);
+          resultRoot.appendChild(element('div', 'log-line', '› ' + data.message));
         } else if (data.type === 'done') {
           const drafts = data.drafts || [];
           if (!drafts.length) {
             resultRoot.appendChild(element('div', 'log-warning', 'The run completed without drafts.'));
           } else {
             resultRoot.appendChild(element('div', 'log-divider'));
-            for (const draft of drafts) appendDraft(resultRoot, draft, false);
+            resultRoot.appendChild(buildCardsGrid(drafts));
           }
           await loadRuns();
         } else if (data.type === 'error') {
