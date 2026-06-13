@@ -85,17 +85,30 @@ bot.use(async (ctx, next) => {
 });
 
 bot.command('run', async (ctx) => {
-  await ctx.reply('Starting the writing pipeline...');
+  await ctx.reply('Agent workflow triggered...');
 
   try {
-    const drafts = await generateDrafts();
+    const statusMsg = await ctx.reply('Initializing...');
+    let currentLogs = 'Initializing...';
+    
+    const drafts = await generateDrafts(async (msg) => {
+      currentLogs += `\n👉 ${msg}`;
+      // Edit the existing message so we don't spam the chat
+      await ctx.telegram.editMessageText(
+        ctx.chat?.id,
+        statusMsg.message_id,
+        undefined,
+        currentLogs
+      ).catch(() => {}); // ignore 'Message is not modified' error
+    });
+    
     await sendDrafts((message) => ctx.reply(message), drafts);
     await ctx.reply(
-      'Done. Use /style followed by a correction to teach future runs.',
+      '✅ Done. Use /style followed by a correction to teach future runs.',
     );
   } catch (error) {
-    console.error(error);
-    await ctx.reply('An error occurred while generating drafts.');
+    console.error('Fatal error during /run:', error);
+    await ctx.reply(`❌ An error occurred while generating drafts: ${error instanceof Error ? error.message : String(error)}`);
   }
 });
 

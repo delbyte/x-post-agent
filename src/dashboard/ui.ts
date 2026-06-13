@@ -528,20 +528,54 @@ async function reloadAll() {
 
 async function triggerRun() {
   resultSection.classList.remove('hidden');
-  setState(resultRoot, 'loading', 'Generating drafts...');
+  setState(resultRoot, 'loading', 'Initializing pipeline...');
   runButton.disabled = true;
   runButton.textContent = 'Running...';
 
   try {
-    const payload = await requestJson('/api/run', { method: 'POST' });
-    resultRoot.replaceChildren();
-    const drafts = payload.drafts || [];
-    if (!drafts.length) {
-      setState(resultRoot, 'empty', 'The run completed without drafts.');
-    } else {
-      for (const draft of drafts) appendDraft(resultRoot, draft, false);
+    const response = await fetch('/api/run', { method: 'POST' });
+    if (!response.ok) throw new Error(\`HTTP ${response.status}\`);
+    if (!response.body) throw new Error('No response body stream.');
+
+    resultRoot.replaceChildren(); // clear loader
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\\n\\n');
+      buffer = lines.pop() ?? ''; // Keep the incomplete part
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = JSON.parse(line.substring(6));
+
+        if (data.type === 'log') {
+          const logEl = document.createElement('div');
+          logEl.className = 'text-sm text-gray-400 font-mono mb-2';
+          logEl.textContent = \`👉 \${data.message}\`;
+          resultRoot.appendChild(logEl);
+        } else if (data.type === 'done') {
+          const drafts = data.drafts || [];
+          if (!drafts.length) {
+            const el = document.createElement('div');
+            el.className = 'text-sm text-yellow-400 mt-4 font-mono';
+            el.textContent = 'The run completed without drafts.';
+            resultRoot.appendChild(el);
+          } else {
+            resultRoot.insertAdjacentHTML('beforeend', '<div class="mt-8 border-t border-gray-800 pt-6"></div>');
+            for (const draft of drafts) appendDraft(resultRoot, draft, false);
+          }
+          await loadRuns();
+        } else if (data.type === 'error') {
+          throw new Error(data.message);
+        }
+      }
     }
-    await loadRuns();
   } catch (error) {
     setState(resultRoot, 'error', error instanceof Error ? error.message : 'The run failed.');
   } finally {

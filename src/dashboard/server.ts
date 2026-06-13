@@ -214,7 +214,26 @@ async function handleApi(
     }
 
     if (pathname === '/api/run' && request.method === 'POST') {
-      sendJson(response, 200, { drafts: await generateDrafts() });
+      response.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      });
+      try {
+        const drafts = await generateDrafts(async (msg) => {
+          response.write(`data: ${JSON.stringify({ type: 'log', message: msg })}\n\n`);
+        });
+        response.write(`data: ${JSON.stringify({ type: 'done', drafts })}\n\n`);
+      } catch (err) {
+        response.write(
+          `data: ${JSON.stringify({
+            type: 'error',
+            message: err instanceof Error ? err.message : String(err),
+          })}\n\n`,
+        );
+      } finally {
+        response.end();
+      }
       return;
     }
 

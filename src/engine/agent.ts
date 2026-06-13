@@ -694,27 +694,41 @@ Return only valid JSON:
   return drafts;
 }
 
-export async function generateDrafts(): Promise<GeneratedDraft[]> {
-  console.log('Starting X Post Agent generation pipeline...');
-  console.log('Collecting context...');
+export async function generateDrafts(
+  onProgress?: (message: string) => void | Promise<void>
+): Promise<GeneratedDraft[]> {
+  const log = async (msg: string) => {
+    console.log(msg);
+    if (onProgress) {
+      try {
+        await onProgress(msg);
+      } catch (err) {
+        console.error('Error in onProgress callback:', err);
+      }
+    }
+  };
 
-  const [github, identity, news] = await Promise.all([
-    getRecentGitHubActivity(),
-    getIdentityAndPreferences(),
-    getAINews(),
-  ]);
-  const rawContext = { github, identity, news };
+  await log('[1/4] Starting X Post Agent generation pipeline...');
+  await log('[2/4] Collecting context (GitHub, Mem0, News)...');
 
-  console.log('Generating drafts with a fast free model...');
-  const drafts = await generateDraftIdeas(rawContext);
-
-  console.log('Saving to DB...');
   try {
-    const [insertedRun] = await db
-      .insert(runs)
-      .values({
-        contextUsed: rawContext,
-        status: 'success',
+    const [github, identity, news] = await Promise.all([
+      getRecentGitHubActivity(),
+      getIdentityAndPreferences(),
+      getAINews(),
+    ]);
+    const rawContext = { github, identity, news };
+
+    await log('[3/4] Generating drafts with LLM...');
+    const drafts = await generateDraftIdeas(rawContext);
+
+    await log('[4/4] Saving to Database...');
+    try {
+      const [insertedRun] = await db
+        .insert(runs)
+        .values({
+          contextUsed: rawContext,
+          status: 'success',
       })
       .returning();
 
