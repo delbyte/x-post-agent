@@ -13,6 +13,24 @@ if (!botToken) {
 
 const bot = new Telegraf(botToken);
 
+// Middleware to ensure ONLY the admin can use the bot
+bot.use(async (ctx, next) => {
+  const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  if (!adminChatId) {
+    console.warn('TELEGRAM_ADMIN_CHAT_ID is not configured. Rejecting request.');
+    return;
+  }
+  
+  // chat.id is uniquely tied to your Telegram user account in a DM
+  if (ctx.chat?.id.toString() !== adminChatId) {
+    console.warn(`Unauthorized access attempt from Chat ID: ${ctx.chat?.id}`);
+    await ctx.reply('⛔ Unauthorized. This bot is private.');
+    return;
+  }
+  
+  return next();
+});
+
 // Handler for manual generation trigger
 bot.command('run', async (ctx) => {
   await ctx.reply('🚀 Starting X Post Agent pipeline... Gathering context and drafting...');
