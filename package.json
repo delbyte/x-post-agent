@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsx src/index.ts",
+    "dashboard": "tsx src/dashboard/server.ts",
     "build": "tsc",
     "test:smoke": "tsx scripts/smoke.ts",
     "db:generate": "drizzle-kit generate",
