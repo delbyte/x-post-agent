@@ -1,35 +1,101 @@
-import { llm } from '../utils/llm';
 import { config } from 'dotenv';
+
 config();
 
+const NEWS_TIMEOUT_MS = 10_000;
+const MAX_HEADLINES = 8;
+
+type NewsItem = {
+  title: string;
+  source: string;
+  publishedAt: string;
+  url: string;
+};
+
+function decodeXml(value: string): string {
+  const entities: Record<string, string> = {
+    amp: '&',
+    apos: "'",
+    gt: '>',
+    lt: '<',
+    quot: '"',
+  };
+
+  return value
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .replace(/&#(\d+);/g, (_, code: string) =>
+      String.fromCodePoint(Number(code)),
+    )
+    .replace(/&#x([\da-f]+);/gi, (_, code: string) =>
+      String.fromCodePoint(Number.parseInt(code, 16)),
+    )
+    .replace(/&([a-z]+);/gi, (match, entity: string) =>
+      entities[entity.toLowerCase()] ?? match,
+    )
+    .replace(/<[^>]+>/g, '')
+    .trim();
+}
+
+function readTag(xml: string, tag: string): string {
+  const match = xml.match(
+    new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'),
+  );
+  return match ? decodeXml(match[1]) : '';
+}
+
+function parseGoogleNewsRss(xml: string): NewsItem[] {
+  const items = xml.match(/<item>[\s\S]*?<\/item>/gi) ?? [];
+
+  return items
+    .map((item) => ({
+      title: readTag(item, 'title'),
+      source: readTag(item, 'source') || 'Unknown source',
+      publishedAt: readTag(item, 'pubDate'),
+      url: readTag(item, 'link'),
+    }))
+    .filter((item) => item.title && item.url)
+    .slice(0, MAX_HEADLINES);
+}
+
 export async function getAINews(): Promise<string> {
-  if (!process.env.OPENROUTER_API_KEY) {
-    console.warn('OpenRouter API Key missing.');
-    return 'No AI news context (OpenRouter API missing).';
-  }
+  const feedUrl = new URL('https://news.google.com/rss/search');
+  feedUrl.searchParams.set(
+    'q',
+    '(OpenAI OR Anthropic OR "Google DeepMind" OR "artificial intelligence") when:2d',
+  );
+  feedUrl.searchParams.set('hl', 'en-US');
+  feedUrl.searchParams.set('gl', 'US');
+  feedUrl.searchParams.set('ceid', 'US:en');
 
   try {
-    const response = await llm.chat.completions.create({
-      model: 'nvidia/nemotron-3-ultra-550b-a55b:free',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an AI researcher. Your task is to provide the top 3 most important AI news developments from the last 48 hours. Please browse the internet if necessary to gather this fresh information and summarize it.'
-        },
-        {
-          role: 'user',
-          content: 'What are the top 3 AI news updates from the last 48 hours?'
-        }
-      ],
-      // Moonshot doesn't have an explicit `tools` for browsing natively accessible without specific Moonshot tool integration for normal devs, 
-      // but they do support the model automatically searching if instructed in some contexts, or we build a small dummy tool.
-      // Assuming regular completion will retrieve up-to-date data if Moonshot has live access.
-      temperature: 0.3,
+    const response = await fetch(feedUrl, {
+      headers: {
+        Accept: 'application/rss+xml, application/xml, text/xml',
+        'User-Agent': 'x-post-agent/1.0',
+      },
+      signal: AbortSignal.timeout(NEWS_TIMEOUT_MS),
     });
 
-    return `Recent AI News:\n${response.choices[0].message.content || 'None available.'}`;
+    if (!response.ok) {
+      throw new Error(
+        `Google News RSS returned ${response.status} ${response.statusText}`,
+      );
+    }
+
+    const headlines = parseGoogleNewsRss(await response.text());
+    if (headlines.length === 0) {
+      return 'No recent AI headlines were found.';
+    }
+
+    return [
+      'AI headlines from the last 48 hours:',
+      ...headlines.map(
+        (item, index) =>
+          `${index + 1}. ${item.title} | ${item.source} | ${item.publishedAt} | ${item.url}`,
+      ),
+    ].join('\n');
   } catch (error) {
-    console.error('Failed to get AI news from Kimi:', error);
-    return 'Error retrieving AI news.';
+    console.error('Failed to fetch AI news:', error);
+    return 'Recent AI news could not be retrieved.';
   }
 }
