@@ -1,17 +1,16 @@
-import { kimi } from '../utils/kimi';
+import { llm } from '../utils/llm';
 import { config } from 'dotenv';
 config();
 
 export async function getAINews(): Promise<string> {
-  if (!process.env.KIMI_API_KEY) {
-    console.warn('Kimi API Key missing.');
-    return 'No AI news context (Kimi API missing).';
+  if (!process.env.OPENROUTER_API_KEY) {
+    console.warn('OpenRouter API Key missing.');
+    return 'No AI news context (OpenRouter API missing).';
   }
 
   try {
-    // Attempting to ask Kimi to fetch real-time AI news
-    const response = await kimi.chat.completions.create({
-      model: 'moonshot-v1-32k',
+    const response = await llm.chat.completions.create({
+      model: 'nvidia/nemotron-3-ultra-550b-a55b:free',
       messages: [
         {
           role: 'system',

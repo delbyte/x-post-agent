@@ -17,7 +17,8 @@ export async function getIdentityAndPreferences(): Promise<string> {
 
   try {
     const { results: memories } = await client.search('My identity, preferences, recurring themes, and writing style', {
-      filters: { userId: USER_ID },
+      // @ts-ignore - The SDK types expect 'userId', but the backend expects 'user_id'
+      filters: { user_id: USER_ID },
     });
 
     if (!memories || memories.length === 0) {
