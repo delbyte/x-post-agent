@@ -1,4 +1,4 @@
-import { kimi } from '../utils/kimi';
+import { llm } from '../utils/llm';
 import { getRecentGitHubActivity } from '../collectors/github';
 import { getIdentityAndPreferences } from '../collectors/mem0';
 import { getAINews } from '../collectors/news';
@@ -35,8 +35,8 @@ ${news}
 
 Instructions: Generate 3 draft tweets based on the context above. Provide the output as a raw string separated by distinct markers: "---TWEET---" between each tweet.`;
 
-  const draftResponse = await kimi.chat.completions.create({
-    model: 'moonshot-v1-32k',
+  const draftResponse = await llm.chat.completions.create({
+    model: 'nvidia/nemotron-3-ultra-550b-a55b:free',
     messages: [
       { role: 'system', content: 'You are an edgy, concise, technical builder. No cringe marketing speak.' },
       { role: 'user', content: draftPrompt }
@@ -57,8 +57,8 @@ ${draftsText}
 Output valid JSON strictly in this format: 
 { "tweets": ["tweet 1", "tweet 2", "tweet 3"] }`;
 
-  const validationResponse = await kimi.chat.completions.create({
-    model: 'moonshot-v1-8k',
+  const validationResponse = await llm.chat.completions.create({
+    model: 'nvidia/nemotron-3-ultra-550b-a55b:free',
     messages: [
       { role: 'system', content: 'You are a highly critical editor. Only output valid JSON.' },
       { role: 'user', content: validationPrompt }
