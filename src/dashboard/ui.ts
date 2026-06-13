@@ -6,42 +6,42 @@ export const DASHBOARD_HTML = `<!doctype html>
     <title>X Post Agent</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <div class="ambient-glow"></div>
-    
-    <header class="header-bar">
-      <div class="header-content">
-        <div class="logo">X Post Agent</div>
-        <nav class="pill-nav">
-          <button id="tab-runs" class="ghost-tab active">Past runs</button>
-          <button id="tab-memories" class="ghost-tab">Memories</button>
+    <header class="nav">
+      <div class="nav-inner">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-name">X Post Agent</span>
+        </div>
+        <nav class="tabs">
+          <button id="tab-runs" class="tab active" type="button">Past runs</button>
+          <button id="tab-memories" class="tab" type="button">Memories</button>
         </nav>
-        <button id="refresh-btn" class="neutral-filled-btn header-refresh">Refresh</button>
+        <div class="nav-actions">
+          <button id="refresh-btn" class="btn-ghost" type="button">Refresh</button>
+          <button id="run-button" class="btn-primary" type="button">Generate run</button>
+        </div>
       </div>
     </header>
 
     <main class="shell">
-      <section class="hero">
-        <h1>X Post Agent</h1>
-        <p class="subtitle">Run the agent, review its drafts, and inspect writing memories.</p>
-        <button class="neutral-filled-btn" id="run-button" type="button" style="margin-top: 16px;">Generate a fresh run</button>
-      </section>
-
       <section id="run-result-section" class="hidden" aria-live="polite">
-        <div class="frosted-card">
-          <h2 class="card-heading">Latest Result</h2>
-          <div id="run-result"></div>
-        </div>
+        <article class="card">
+          <div class="card-head">
+            <h2 class="card-title">Latest run</h2>
+          </div>
+          <div id="run-result" class="run-result"></div>
+        </article>
       </section>
 
-      <div id="runs-view" class="view-section active">
+      <div id="runs-view" class="view active">
         <div id="runs" aria-live="polite"></div>
       </div>
 
-      <div id="memories-view" class="view-section hidden">
+      <div id="memories-view" class="view hidden">
         <div id="memories" aria-live="polite"></div>
       </div>
     </main>
@@ -52,304 +52,359 @@ export const DASHBOARD_HTML = `<!doctype html>
 
 export const DASHBOARD_CSS = `
 :root {
-  --color-ink-black: #000000;
-  --color-snow: #ffffff;
-  --color-canvas: #f8f8f8;
-  --color-fog: #efefef;
-  --color-pebble: #d9d9d9;
-  --color-graphite: #636363;
-  --color-slate: #959595;
-  --color-steel: #aeaeae;
-  --color-ash: #7c7c7c;
-  --color-spectrum-gradient: linear-gradient(90deg, rgb(198, 121, 196) 0%, rgb(250, 61, 29) 25%, rgb(255, 176, 5) 50%, rgb(225, 225, 254) 75%, rgb(3, 88, 247) 100%);
-  
-  --font-abc-oracle: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --color-onyx: #08090a;
+  --color-charcoal: #0f1011;
+  --color-obsidian: #161718;
+  --color-graphite: #23252a;
+  --color-iron: #323334;
+  --color-steel: #383b3f;
+  --color-slate: #62666d;
+  --color-fog: #8a8f98;
+  --color-mist: #d0d6e0;
+  --color-snow: #f7f8f8;
+  --color-acid-lime: #e4f222;
+  --color-indigo: #5e6ad2;
+  --color-emerald: #27a644;
+  --color-crimson: #eb5757;
+  --color-cyan: #02b8cc;
+
+  --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --shadow-card: rgba(0, 0, 0, 0.4) 0px 2px 4px 0px;
+  --shadow-overlay: rgba(8, 9, 10, 0.6) 0px 4px 32px 0px;
+  --inset-graphite: inset 0px 0px 0px 1px var(--color-graphite);
 }
 
 * { box-sizing: border-box; }
 
+html, body { height: 100%; }
+
 body {
   margin: 0;
-  background-color: var(--color-canvas);
-  color: var(--color-ink-black);
-  font-family: var(--font-abc-oracle);
+  background-color: var(--color-onyx);
+  color: var(--color-snow);
+  font-family: var(--font-inter);
   font-weight: 400;
+  font-feature-settings: "cv01" on, "ss03" on;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.ambient-glow {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50vh;
-  background: var(--color-spectrum-gradient);
-  filter: blur(80px);
-  opacity: 0.15;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.header-bar {
+/* ---------- Top navigation ---------- */
+.nav {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(239, 239, 239, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  height: 56px;
+  background: var(--color-charcoal);
+  border-bottom: 1px solid var(--color-graphite);
 }
 
-.header-content {
+.nav-inner {
   max-width: 1200px;
+  height: 100%;
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: 0 24px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 24px;
 }
 
-.logo {
-  font-weight: 500;
-  font-size: 16px;
-  letter-spacing: -0.02em;
-}
-
-.pill-nav {
+.brand {
   display: flex;
-  background: rgba(0, 0, 0, 0.04);
-  padding: 4px;
-  border-radius: 9999px;
-  gap: 4px;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
-.ghost-tab {
-  background: transparent;
-  color: rgba(0, 0, 0, 0.85);
-  border: none;
-  border-radius: 9999px;
-  padding: 6px 16px;
-  font-family: var(--font-abc-oracle);
+.brand-mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--color-indigo);
+  box-shadow: 0 0 8px rgba(94, 106, 210, 0.6);
+}
+
+.brand-name {
   font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.ghost-tab:hover {
-  background: rgba(0,0,0,0.05);
-}
-
-.ghost-tab.active {
-  background: var(--color-snow);
-  box-shadow: var(--shadow-sm);
-  color: var(--color-ink-black);
-}
-
-.neutral-filled-btn {
-  background: var(--color-pebble);
-  color: rgba(0, 0, 0, 0.85);
-  border: none;
-  border-radius: 30px;
-  font-family: var(--font-abc-oracle);
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 12px 24px;
-}
-
-.neutral-filled-btn:hover:not(:disabled) {
-  background: var(--color-ink-black);
+  font-weight: 590;
+  letter-spacing: -0.01em;
   color: var(--color-snow);
 }
 
-.neutral-filled-btn:disabled {
-  opacity: 0.6;
-  cursor: wait;
+.tabs {
+  display: flex;
+  gap: 4px;
+  flex: 1 1 auto;
 }
 
-.header-refresh {
+.tab {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--color-fog);
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: 510;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.tab:hover { color: var(--color-snow); }
+
+.tab.active {
+  color: var(--color-snow);
+  background: var(--color-obsidian);
+  box-shadow: var(--inset-graphite);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.btn-ghost {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--color-fog);
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: 510;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--color-snow);
+  background: var(--color-obsidian);
+}
+
+.btn-ghost:disabled { opacity: 0.5; cursor: wait; }
+
+.btn-primary {
+  appearance: none;
+  background: var(--color-acid-lime);
+  color: #08090a;
+  border: none;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: 590;
   padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: filter 0.15s ease, opacity 0.15s ease;
 }
 
+.btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.btn-primary:disabled { opacity: 0.55; cursor: wait; }
+
+/* ---------- Shell ---------- */
 .shell {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 80px 24px 120px;
+  padding: 32px 24px 96px;
   display: flex;
   flex-direction: column;
-  gap: 80px;
+  gap: 32px;
 }
 
-.hero {
-  text-align: center;
+.view {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+.hidden { display: none !important; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--color-charcoal);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow-card), var(--inset-graphite);
+}
+
+.card-head {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-graphite);
 }
 
-h1 {
-  font-size: 54px;
-  font-weight: 300;
-  letter-spacing: -2.16px;
-  line-height: 1.11;
-  margin: 0 0 16px 0;
-  color: var(--color-ink-black);
-  font-family: var(--font-abc-oracle);
+.card-title {
+  font-size: 15px;
+  font-weight: 590;
+  letter-spacing: -0.01em;
+  color: var(--color-snow);
+  margin: 0;
 }
 
-.subtitle {
-  font-size: 18px;
-  color: var(--color-graphite);
-  margin: 0 0 34px 0;
-  max-width: 600px;
-}
-
-#run-button {
-  font-size: 16px;
-}
-
-.view-section {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  transition: opacity 0.2s ease;
-}
-
-.hidden {
-  display: none !important;
-}
-
-.frosted-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-radius: 30px;
-  padding: 32px;
-  box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 8px 0px;
-}
-
-.card-heading {
-  font-size: 22px;
-  font-weight: 400;
-  letter-spacing: -0.44px;
-  color: var(--color-ink-black);
-  margin: 0 0 24px 0;
-}
-
+/* ---------- Run meta / status ---------- */
 .run-meta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid var(--color-fog);
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .run-time {
-  font-size: 14px;
-  color: var(--color-graphite);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: -0.015em;
+  color: var(--color-fog);
 }
 
 .status {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 10px;
-  background: var(--color-fog);
-  color: var(--color-graphite);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 510;
+  letter-spacing: 0.01em;
+  text-transform: capitalize;
+  padding: 2px 8px;
+  border-radius: 2px;
+  color: var(--color-mist);
+  background: transparent;
 }
 
-.status.failed {
-  background: rgba(250, 61, 29, 0.1);
-  color: var(--color-ink-black);
+.status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--color-emerald);
 }
 
+.status.failed { color: var(--color-crimson); }
+.status.failed::before { background: var(--color-crimson); }
+
+/* ---------- Drafts ---------- */
 .draft-item {
-  padding: 0 0 32px 0;
-  margin-bottom: 32px;
-  border-bottom: 1px solid var(--color-fog);
+  padding: 20px 0;
+  border-top: 1px solid var(--color-graphite);
 }
-.draft-item:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
-}
+
+.draft-item:first-of-type { border-top: none; padding-top: 16px; }
+.draft-item:last-child { padding-bottom: 0; }
 
 .draft-title {
-  font-size: 18px;
-  font-weight: 500;
-  margin: 0 0 10px 0;
+  font-size: 15px;
+  font-weight: 590;
+  letter-spacing: -0.01em;
+  color: var(--color-snow);
+  margin: 0 0 8px 0;
 }
 
 .draft-content {
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--color-graphite);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-mist);
   white-space: pre-wrap;
   margin: 0;
 }
 
 .recommendation, .visual {
-  margin-top: 15px;
-  font-size: 14px;
-  color: var(--color-slate);
-  background: rgba(0,0,0,0.02);
-  padding: 12px 16px;
-  border-radius: 10px;
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-fog);
+  background: var(--color-obsidian);
+  padding: 10px 12px;
+  border-radius: 6px;
+  box-shadow: var(--inset-graphite);
 }
 
 .recommendation strong, .visual strong {
-  color: var(--color-ink-black);
-  font-weight: 500;
+  color: var(--color-mist);
+  font-weight: 590;
 }
 
 .history-note {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-slate);
-  font-style: italic;
+  margin: 4px 0 0 0;
 }
 
+/* ---------- Memories ---------- */
 .memory-text {
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--color-graphite);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-mist);
   white-space: pre-wrap;
-  margin: 0 0 15px 0;
+  margin: 0 0 12px 0;
 }
 
 .memory-date {
-  font-size: 10px;
-  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: -0.015em;
   color: var(--color-slate);
   margin: 0;
 }
 
+/* ---------- Run log (streaming) ---------- */
+.run-result { display: flex; flex-direction: column; }
+
+.log-line {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: -0.015em;
+  color: var(--color-fog);
+  padding: 3px 0;
+}
+
+.log-divider {
+  height: 1px;
+  background: var(--color-graphite);
+  margin: 16px 0;
+}
+
+.log-warning {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-acid-lime);
+  margin-top: 12px;
+}
+
+/* ---------- States ---------- */
 .state {
   text-align: center;
-  padding: 40px;
+  padding: 48px 24px;
   color: var(--color-slate);
+  font-size: 14px;
 }
 
-.state.error {
-  color: var(--color-ink-black);
-}
+.state.error { color: var(--color-crimson); }
 
 .spinner {
-  width: 24px;
-  height: 24px;
-  margin: 0 auto 15px;
-  border: 2px solid var(--color-pebble);
-  border-top-color: var(--color-graphite);
+  width: 20px;
+  height: 20px;
+  margin: 0 auto 14px;
+  border: 2px solid var(--color-graphite);
+  border-top-color: var(--color-fog);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .nav-inner { gap: 12px; padding: 0 16px; }
+  .brand-name { display: none; }
+  .shell { padding: 24px 16px 80px; }
 }
 `;
 
@@ -463,11 +518,13 @@ function renderRuns(runs) {
   }
 
   for (const run of runs) {
-    const card = element('article', 'frosted-card');
+    const card = element('article', 'card');
+    const head = element('div', 'card-head');
     const meta = element('div', 'run-meta');
     const status = element('span', 'status' + (run.status === 'failed' ? ' failed' : ''), run.status);
     meta.append(element('time', 'run-time', formatDate(run.runDate)), status);
-    card.append(meta);
+    head.append(meta);
+    card.append(head);
 
     if (run.drafts && run.drafts.length) {
       for (const draft of run.drafts) appendDraft(card, draft, true);
@@ -480,7 +537,7 @@ function renderRuns(runs) {
 
 function renderMemories(memories) {
   memoriesRoot.replaceChildren();
-  
+
   // Filter out the style profile memories
   const visibleMemories = memories.filter(m => {
     const meta = m.metadata || {};
@@ -493,7 +550,7 @@ function renderMemories(memories) {
   }
 
   for (const memory of visibleMemories) {
-    const card = element('article', 'frosted-card');
+    const card = element('article', 'card');
     card.append(element('p', 'memory-text', memory.memory || '(Empty memory)'));
     if (memory.createdAt) card.append(element('p', 'memory-date', formatDate(memory.createdAt)));
     memoriesRoot.append(card);
@@ -555,19 +612,14 @@ async function triggerRun() {
         const data = JSON.parse(line.substring(6));
 
         if (data.type === 'log') {
-          const logEl = document.createElement('div');
-          logEl.className = 'text-sm text-gray-400 font-mono mb-2';
-          logEl.textContent = \`👉 \${data.message}\`;
+          const logEl = element('div', 'log-line', '› ' + data.message);
           resultRoot.appendChild(logEl);
         } else if (data.type === 'done') {
           const drafts = data.drafts || [];
           if (!drafts.length) {
-            const el = document.createElement('div');
-            el.className = 'text-sm text-yellow-400 mt-4 font-mono';
-            el.textContent = 'The run completed without drafts.';
-            resultRoot.appendChild(el);
+            resultRoot.appendChild(element('div', 'log-warning', 'The run completed without drafts.'));
           } else {
-            resultRoot.insertAdjacentHTML('beforeend', '<div class="mt-8 border-t border-gray-800 pt-6"></div>');
+            resultRoot.appendChild(element('div', 'log-divider'));
             for (const draft of drafts) appendDraft(resultRoot, draft, false);
           }
           await loadRuns();
@@ -580,7 +632,7 @@ async function triggerRun() {
     setState(resultRoot, 'error', error instanceof Error ? error.message : 'The run failed.');
   } finally {
     runButton.disabled = false;
-    runButton.textContent = 'Generate a fresh run';
+    runButton.textContent = 'Generate run';
   }
 }
 
