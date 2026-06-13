@@ -711,20 +711,19 @@ export async function generateDrafts(
   await log('[1/4] Starting X Post Agent generation pipeline...');
   await log('[2/4] Collecting context (GitHub, Mem0, News)...');
 
+  const [github, identity, news] = await Promise.all([
+    getRecentGitHubActivity(),
+    getIdentityAndPreferences(),
+    getAINews(),
+  ]);
+  const rawContext = { github, identity, news };
+
+  await log('[3/4] Generating drafts with LLM...');
+  const drafts = await generateDraftIdeas(rawContext);
+
+  await log('[4/4] Saving to Database...');
   try {
-    const [github, identity, news] = await Promise.all([
-      getRecentGitHubActivity(),
-      getIdentityAndPreferences(),
-      getAINews(),
-    ]);
-    const rawContext = { github, identity, news };
-
-    await log('[3/4] Generating drafts with LLM...');
-    const drafts = await generateDraftIdeas(rawContext);
-
-    await log('[4/4] Saving to Database...');
-    try {
-      const [insertedRun] = await db
+    const [insertedRun] = await db
         .insert(runs)
         .values({
           contextUsed: rawContext,
