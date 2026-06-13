@@ -126,7 +126,7 @@ body {
 }
 
 .brand-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 590;
   letter-spacing: -0.01em;
   color: var(--color-snow);
@@ -144,9 +144,9 @@ body {
   border: none;
   color: var(--color-fog);
   font-family: var(--font-inter);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 510;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: 6px;
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
@@ -173,9 +173,9 @@ body {
   border: none;
   color: var(--color-fog);
   font-family: var(--font-inter);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 510;
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: 6px;
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
@@ -194,9 +194,9 @@ body {
   color: var(--color-snow);
   border: none;
   font-family: var(--font-inter);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 590;
-  padding: 8px 16px;
+  padding: 9px 18px;
   border-radius: 6px;
   cursor: pointer;
   transition: filter 0.15s ease, opacity 0.15s ease;
@@ -257,11 +257,11 @@ body {
 
 .day-date {
   position: relative;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 590;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.012em;
   color: var(--color-snow);
-  margin: 0 0 20px 0;
+  margin: 0 0 22px 0;
 }
 
 .day-date::before {
@@ -293,19 +293,19 @@ body {
 }
 
 .run-tag {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 590;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--color-mist);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 2px;
   box-shadow: var(--inset-graphite);
 }
 
 .run-time {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: -0.015em;
   color: var(--color-fog);
 }
@@ -313,8 +313,8 @@ body {
 .status {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 7px;
+  font-size: 14px;
   font-weight: 510;
   text-transform: capitalize;
   color: var(--color-mist);
@@ -322,8 +322,8 @@ body {
 
 .status::before {
   content: "";
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 9999px;
   background: var(--color-emerald);
 }
@@ -339,7 +339,7 @@ body {
 }
 
 .empty-run {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--color-slate);
   padding: 4px 0;
 }
@@ -349,10 +349,10 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 300px;
+  height: 440px;
   background: var(--color-obsidian);
   border-radius: 12px;
-  padding: 16px;
+  padding: 22px;
   box-shadow: var(--inset-graphite);
   transition: box-shadow 0.15s ease;
 }
@@ -363,46 +363,42 @@ body {
 
 .post-kicker {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--color-slate);
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
 }
 
 .post-title {
-  font-size: 15px;
+  font-size: 26px;
   font-weight: 590;
-  line-height: 1.33;
-  letter-spacing: -0.01em;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
   color: var(--color-snow);
-  margin: 0 0 10px 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  margin: 0 0 14px 0;
 }
 
 .post-body {
   flex: 1 1 auto;
   overflow-y: auto;
-  font-size: 13px;
+  font-size: 18px;
   line-height: 1.6;
   color: var(--color-mist);
   white-space: pre-wrap;
   word-break: break-word;
-  padding-right: 6px;
+  padding-right: 8px;
   margin: 0;
 }
 
 .post-body strong { color: var(--color-snow); font-weight: 590; }
 
 .post-aside {
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--color-graphite);
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.55;
   color: var(--color-fog);
 }
 
@@ -422,16 +418,16 @@ body {
 /* Copy on hover */
 .copy-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   appearance: none;
   border: none;
   background: var(--color-graphite);
   color: var(--color-mist);
   font-family: var(--font-inter);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 510;
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 6px;
   cursor: pointer;
   opacity: 0;
@@ -454,32 +450,32 @@ body {
 .memory-card {
   display: flex;
   flex-direction: column;
-  max-height: 360px;
+  max-height: 440px;
   background: var(--color-charcoal);
   border-radius: 12px;
-  padding: 20px;
+  padding: 24px;
   box-shadow: var(--shadow-card), var(--inset-graphite);
 }
 
 .memory-kicker {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--color-slate);
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
 }
 
 .memory-text {
   flex: 1 1 auto;
   overflow-y: auto;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.6;
   color: var(--color-mist);
   white-space: pre-wrap;
   word-break: break-word;
   margin: 0;
-  padding-right: 6px;
+  padding-right: 8px;
 }
 
 .memory-text::-webkit-scrollbar { width: 8px; }
@@ -492,10 +488,10 @@ body {
 
 .memory-date {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: -0.015em;
   color: var(--color-slate);
-  margin: 12px 0 0 0;
+  margin: 14px 0 0 0;
 }
 
 /* ---------- Run log (streaming) ---------- */
@@ -528,7 +524,7 @@ body {
   text-align: center;
   padding: 48px 24px;
   color: var(--color-slate);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .state.error { color: var(--color-crimson); }
