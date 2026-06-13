@@ -534,7 +534,7 @@ async function triggerRun() {
 
   try {
     const response = await fetch('/api/run', { method: 'POST' });
-    if (!response.ok) throw new Error(\`HTTP ${response.status}\`);
+    if (!response.ok) throw new Error(\`HTTP \$\{response.status\}\`);
     if (!response.body) throw new Error('No response body stream.');
 
     resultRoot.replaceChildren(); // clear loader
